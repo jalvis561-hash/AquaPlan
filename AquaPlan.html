@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AquaPlan</title>
+<style>
+:root{
+  --azul:#1565c0; --azul-osc:#0b3d91; --celeste:#e3f2fd; --agua:#29b6f6;
+  --papel:#fbfdff; --linea:#b8d4ee; --texto:#14304f; --rojo:#d32f2f;
+  --verde:#43a047; --amarillo:#f9a825; --fondo:#dfeaf5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Trebuchet MS","Segoe UI",sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px}
+h1.titulo{font-size:1.6rem;color:var(--azul-osc);letter-spacing:.04em;margin:4px 0 12px}
+.menu{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.menu button{border:2px solid var(--azul);background:#fff;color:var(--azul);padding:8px 14px;border-radius:20px;font-weight:700;cursor:pointer;font-family:inherit}
+.menu button.activo,.menu button:hover{background:var(--azul);color:#fff}
+.menu button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--amarillo);outline-offset:2px}
+
+.telefono{width:100%;max-width:380px;min-height:680px;background:var(--papel);border:3px solid var(--azul);border-radius:28px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 30px rgba(11,61,145,.2);
+  background-image:linear-gradient(var(--celeste) 1px,transparent 1px),linear-gradient(90deg,var(--celeste) 1px,transparent 1px);background-size:22px 22px}
+.pantalla{display:none;flex:1;flex-direction:column;padding:20px 20px 12px}
+.pantalla.visible{display:flex}
+.cab{display:flex;align-items:center;gap:10px;margin-bottom:18px;color:var(--azul-osc);font-weight:700}
+.cab .volver{background:none;border:none;font-size:1.5rem;color:var(--azul);cursor:pointer}
+.cab h2{font-size:1.25rem}
+
+/* Inicio */
+.inicio{align-items:center;text-align:center;gap:10px}
+.inicio .lema{font-size:1.1rem;color:var(--azul-osc);margin-top:6px}
+.gota{width:54px;height:76px;background:var(--agua);border:3px solid var(--azul-osc);border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;transform:scale(1);clip-path:path("M27 0 C27 0 0 38 0 54 A27 22 0 0 0 54 54 C54 38 27 0 27 0Z");border-radius:0}
+.logo{font-size:2.6rem;font-weight:800;color:var(--azul);margin:0}
+.logo span{color:var(--agua)}
+.inicio p.sub{max-width:240px;line-height:1.4;color:#355b82}
+.casa{font-size:4.2rem;margin:6px 0}
+.btn{display:block;width:100%;border:3px solid var(--azul-osc);border-radius:22px;padding:12px;font-size:1.05rem;font-weight:800;font-family:inherit;cursor:pointer;background:var(--agua);color:var(--azul-osc);text-align:center}
+.btn:hover{background:#4fc3f7}
+.btn.sec{background:#fff}
+.btn.peligro{background:#fff;color:var(--rojo);border-color:var(--rojo)}
+.espacio{flex:1}
+.stack{display:flex;flex-direction:column;gap:12px;width:100%}
+
+/* Formularios */
+label{display:block;font-weight:700;margin:12px 0 4px;color:var(--azul-osc)}
+input[type=text],input[type=date],select{width:100%;padding:10px;border:2px solid var(--linea);border-radius:8px;background:#fff;font-family:inherit;font-size:.95rem;color:var(--texto)}
+.check{display:flex;align-items:center;gap:8px;margin:16px 0;font-weight:600}
+.check input{width:20px;height:20px;accent-color:var(--azul)}
+.prios{display:flex;gap:8px}
+.prios button{flex:1;padding:8px;border-radius:14px;border:2px solid;font-weight:800;font-family:inherit;cursor:pointer;background:#fff;opacity:.55}
+.prios button.sel{opacity:1;color:#fff}
+.p-alto{border-color:var(--rojo);color:var(--rojo)} .p-alto.sel{background:var(--rojo)}
+.p-medio{border-color:var(--amarillo);color:#8a5a00} .p-medio.sel{background:var(--amarillo);color:#4a3000}
+.p-bajo{border-color:var(--verde);color:var(--verde)} .p-bajo.sel{background:var(--verde)}
+
+/* Panel */
+.consumo{background:#fff;border:2px solid var(--linea);border-radius:12px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.consumo .num{font-size:1.9rem;font-weight:800;color:var(--azul)}
+.consumo small{display:block;color:#5a7a99;font-size:.78rem}
+.filtros{display:flex;gap:6px;margin:8px 0 12px}
+.filtros button{flex:1;padding:7px 2px;border-radius:14px;border:2px solid var(--azul);background:#fff;color:var(--azul);font-weight:700;font-size:.8rem;font-family:inherit;cursor:pointer}
+.filtros button.sel{background:var(--azul);color:#fff}
+.lista{list-style:none;display:flex;flex-direction:column;gap:8px}
+.tarea{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--linea);border-radius:10px;padding:8px 10px}
+.tarea input{width:20px;height:20px;accent-color:var(--azul)}
+.tarea .info{flex:1;min-width:0}
+.tarea b{display:block;font-size:.88rem}
+.tarea.hecha b{text-decoration:line-through;color:#7d93a8}
+.tarea small{color:#5a7a99;font-size:.75rem}
+.etq{font-size:.68rem;font-weight:800;padding:2px 7px;border-radius:10px;color:#fff;margin-left:4px}
+.etq.alto{background:var(--rojo)}.etq.medio{background:var(--amarillo);color:#4a3000}.etq.bajo{background:var(--verde)}
+.ico{background:none;border:none;font-size:1.1rem;cursor:pointer;padding:2px}
+.vacio{text-align:center;color:#5a7a99;padding:20px 8px}
+.fab{align-self:flex-end;width:48px;height:48px;border-radius:50%;border:none;background:var(--azul);color:#fff;font-size:1.8rem;cursor:pointer;margin-top:10px}
+
+/* Barra inferior */
+.nav{display:flex;justify-content:space-around;border-top:2px solid var(--linea);background:#fff;padding:8px 4px}
+.nav button{background:none;border:none;font-family:inherit;color:#5a7a99;font-size:.72rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 8px}
+.nav button span{font-size:1.25rem}
+.nav button.act{color:var(--azul);font-weight:800}
+.nav.oculta{display:none}
+.aviso{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul-osc);color:#fff;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s}
+.aviso.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.aviso{transition:none}}
+</style>
+</head>
+<body>
+<h1 class="titulo">Interfaz página AquaPlan</h1>
+<div class="menu" id="menu">
+  <button data-ir="inicio" class="activo">Inicio</button>
+  <button data-ir="panel">AquaPlan</button>
+  <button data-ir="agregar">Agregar tarea</button>
+  <button data-ir="editar">Editar tarea</button>
+</div>
+
+<div class="telefono">
+
+  <!-- 1. INICIO -->
+  <section class="pantalla inicio visible" id="inicio">
+    <p class="lema">Calcular el agua también es ahorrar</p>
+    <div class="gota" style="background:var(--agua)"></div>
+    <h2 class="logo">Aqua<span>Plan</span></h2>
+    <p class="sub">Tu consumo, bajo control. Calcula tu consumo de agua y estima el valor de tu recibo.</p>
+    <div class="casa" aria-hidden="true">🚰🏠</div>
+    <div class="espacio"></div>
+    <div class="stack">
+      <button class="btn" data-ir="panel">Iniciar sesión</button>
+      <button class="btn sec" data-ir="panel">Registrarse</button>
+    </div>
+  </section>
+
+  <!-- 2. PANEL -->
+  <section class="pantalla" id="panel">
+    <div class="cab"><h2>💧 AquaPlan</h2></div>
+    <div class="consumo">
+      <div class="gota" style="width:26px;height:38px;border-width:2px"></div>
+      <div>
+        <small>Consumo estimado del mes</small>
+        <div class="num">12 m³</div>
+        <small>Servicio 1 · Tarifa 2.500</small>
+      </div>
+    </div>
+    <h3>Mis tareas</h3>
+    <div class="filtros" id="filtros">
+      <button class="sel" data-f="todas">Todas</button>
+      <button data-f="pendientes">Pendientes</button>
+      <button data-f="completadas">Completadas</button>
+    </div>
+    <ul class="lista" id="lista"></ul>
+    <div class="espacio"></div>
+    <button class="fab" data-ir="agregar" aria-label="Agregar tarea">+</button>
+  </section>
+
+  <!-- 3. AGREGAR -->
+  <section class="pantalla" id="agregar">
+    <div class="cab"><button class="volver" data-ir="panel" aria-label="Volver">←</button><h2>Agregar tarea</h2></div>
+    <label for="a-nombre">Nombre de la tarea</label>
+    <input type="text" id="a-nombre" placeholder="Ej: Revisar fugas en el baño">
+    <label for="a-fecha">Fecha de vencimiento</label>
+    <input type="date" id="a-fecha">
+    <label for="a-cat">Categoría</label>
+    <select id="a-cat"><option>Hogar</option><option>Jardín</option><option>Cocina</option><option>Baño</option></select>
+    <label>Prioridad</label>
+    <div class="prios" id="a-prios">
+      <button type="button" class="p-alto" data-p="alto">Alto</button>
+      <button type="button" class="p-medio sel" data-p="medio">Medio</button>
+      <button type="button" class="p-bajo" data-p="bajo">Bajo</button>
+    </div>
+    <label class="check"><input type="checkbox" id="a-imp"> ⭐ Marcar como importante</label>
+    <div class="espacio"></div>
+    <button class="btn" id="guardar">Guardar tarea</button>
+  </section>
+
+  <!-- 4. EDITAR -->
+  <section class="pantalla" id="editar">
+    <div class="cab"><button class="volver" data-ir="panel" aria-label="Volver">←</button><h2>Editar tarea</h2></div>
+    <label for="e-nombre">Nombre de la tarea</label>
+    <input type="text" id="e-nombre" value="Revisar fuga en grifo">
+    <label for="e-fecha">Fecha de vencimiento</label>
+    <input type="date" id="e-fecha" value="2026-10-16">
+    <label for="e-cat">Categoría</label>
+    <select id="e-cat"><option selected>Hogar</option><option>Jardín</option><option>Cocina</option><option>Baño</option></select>
+    <label>Prioridad</label>
+    <div class="prios" id="e-prios">
+      <button type="button" class="p-alto sel" data-p="alto">Alto</button>
+      <button type="button" class="p-medio" data-p="medio">Medio</button>
+      <button type="button" class="p-bajo" data-p="bajo">Bajo</button>
+    </div>
+    <label class="check"><input type="checkbox" id="e-imp"> ⭐ Marcar como importante</label>
+    <div class="espacio"></div>
+    <div class="stack">
+      <button class="btn" id="cambios">Guardar cambios</button>
+      <button class="btn peligro" id="eliminar">🗑 Eliminar tarea</button>
+    </div>
+  </section>
+
+  <nav class="nav oculta" id="nav">
+    <button data-ir="panel"><span>🏠</span>Inicio</button>
+    <button data-ir="panel" class="act"><span>✅</span>Tareas</button>
+    <button data-ir="panel"><span>🧮</span>Calcular</button>
+    <button data-ir="inicio"><span>👤</span>Perfil</button>
+  </nav>
+</div>
+
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+var tareas = [
+  {id:1, n:"Revisar fuga en grifo", f:"2026-10-16", c:"Hogar", p:"alto", h:false},
+  {id:2, n:"Limpiar tanque de agua", f:"2026-10-18", c:"Hogar", p:"medio", h:false},
+  {id:3, n:"Revisar medidor", f:"2026-10-20", c:"Hogar", p:"bajo", h:false},
+  {id:4, n:"Pagar recibo del agua", f:"2026-10-25", c:"Hogar", p:"bajo", h:true}
+];
+var filtro = "todas", editando = null, sigId = 5;
+var pAgregar = "medio", pEditar = "alto";
+
+function $(s){ return document.querySelector(s); }
+function aviso(t){ var a=$("#aviso"); a.textContent=t; a.classList.add("on"); setTimeout(function(){a.classList.remove("on")},1600); }
+
+function ir(id){
+  document.querySelectorAll(".pantalla").forEach(function(p){ p.classList.toggle("visible", p.id===id); });
+  document.querySelectorAll("#menu button").forEach(function(b){ b.classList.toggle("activo", b.dataset.ir===id); });
+  $("#nav").classList.toggle("oculta", id==="inicio" || id==="agregar" || id==="editar");
+  if(id==="panel") pintar();
+}
+document.addEventListener("click", function(e){
+  var b = e.target.closest("[data-ir]");
+  if(b) ir(b.dataset.ir);
+});
+
+function fecha(f){ var d=f.split("-"); return d[2]+"/"+d[1]+"/"+d[0]; }
+function pintar(){
+  var ul = $("#lista"); ul.innerHTML = "";
+  var vis = tareas.filter(function(t){
+    return filtro==="todas" || (filtro==="pendientes" && !t.h) || (filtro==="completadas" && t.h);
+  });
+  if(!vis.length){ ul.innerHTML = '<li class="vacio">No hay tareas aquí. Toca + para agregar una.</li>'; return; }
+  vis.forEach(function(t){
+    var li = document.createElement("li");
+    li.className = "tarea" + (t.h ? " hecha" : "");
+    li.innerHTML = '<input type="checkbox" '+(t.h?"checked":"")+' aria-label="Completar">'+
+      '<div class="info"><b></b><small>'+fecha(t.f)+' · '+t.c+'<span class="etq '+t.p+'">'+t.p+'</span></small></div>'+
+      '<button class="ico" aria-label="Editar">✏️</button><button class="ico" aria-label="Eliminar">🗑</button>';
+    li.querySelector("b").textContent = (t.i ? "⭐ " : "") + t.n;
+    li.querySelector("input").onchange = function(){ t.h = !t.h; pintar(); };
+    var bs = li.querySelectorAll(".ico");
+    bs[0].onclick = function(){ abrirEditar(t); };
+    bs[1].onclick = function(){ tareas = tareas.filter(function(x){return x!==t}); pintar(); aviso("Tarea eliminada"); };
+    ul.appendChild(li);
+  });
+}
+
+$("#filtros").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  filtro = b.dataset.f;
+  document.querySelectorAll("#filtros button").forEach(function(x){ x.classList.toggle("sel", x===b); });
+  pintar();
+});
+
+function prioridad(cont, cb){
+  $(cont).addEventListener("click", function(e){
+    var b = e.target.closest("button"); if(!b) return;
+    document.querySelectorAll(cont+" button").forEach(function(x){ x.classList.toggle("sel", x===b); });
+    cb(b.dataset.p);
+  });
+}
+prioridad("#a-prios", function(p){ pAgregar = p; });
+prioridad("#e-prios", function(p){ pEditar = p; });
+
+function marcarPrio(cont, p){
+  document.querySelectorAll(cont+" button").forEach(function(x){ x.classList.toggle("sel", x.dataset.p===p); });
+}
+
+$("#guardar").onclick = function(){
+  var n = $("#a-nombre").value.trim();
+  if(!n){ aviso("Escribe el nombre de la tarea"); $("#a-nombre").focus(); return; }
+  tareas.push({id:sigId++, n:n, f:$("#a-fecha").value || "2026-10-27", c:$("#a-cat").value, p:pAgregar, h:false, i:$("#a-imp").checked});
+  $("#a-nombre").value = ""; $("#a-fecha").value = ""; $("#a-imp").checked = false;
+  aviso("Tarea guardada"); ir("panel");
+};
+
+function abrirEditar(t){
+  editando = t;
+  $("#e-nombre").value = t.n; $("#e-fecha").value = t.f; $("#e-cat").value = t.c;
+  $("#e-imp").checked = !!t.i; pEditar = t.p; marcarPrio("#e-prios", t.p);
+  ir("editar");
+}
+$("#cambios").onclick = function(){
+  var n = $("#e-nombre").value.trim();
+  if(!n){ aviso("El nombre no puede quedar vacío"); return; }
+  if(editando){
+    editando.n = n; editando.f = $("#e-fecha").value || editando.f;
+    editando.c = $("#e-cat").value; editando.p = pEditar; editando.i = $("#e-imp").checked;
+  }
+  aviso("Cambios guardados"); ir("panel");
+};
+$("#eliminar").onclick = function(){
+  if(editando){ tareas = tareas.filter(function(x){return x!==editando}); editando = null; }
+  aviso("Tarea eliminada"); ir("panel");
+};
+editando = tareas[0];
+</script>
+</body>
+</html>
